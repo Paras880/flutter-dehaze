@@ -101,11 +101,11 @@ app = Flask(__name__)
 @app.route("/transform", methods=["POST"])
 def transform():
     img = request.files['img']
-    img.save("img.jpg")
-    image = cv2.imread("img.jpg")
+    # img.save("img.jpg")
+    # image = cv2.imread("img.jpg")
     result = dehaze(image)
 
-    return jsonify({"Dehazed": result,})
+    return jsonify({"Dehazed": img,})
 
 
 
