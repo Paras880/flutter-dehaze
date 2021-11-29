@@ -10,25 +10,25 @@ import urllib.request
 from werkzeug.utils import secure_filename
 from PIL import Image as im
  
-app = Flask(__name__)
+app2 = Flask(__name__)
  
-app.secret_key = "caircocoders-ednalan"
+app2.secret_key = "caircocoders-ednalan"
  
 UPLOAD_FOLDER = 'static/uploads'
 RESULT_FOLDER = 'static/results'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app2.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app2.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
  
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
  
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
  
-@app.route('/')
+@app2.route('/')
 def main():
     return 'Homepage'
  
-@app.route('/upload', methods=['POST'])
+@app2.route('/upload', methods=['POST'])
 def upload_file():
     # check if the post request has the file part
     if 'files[]' not in request.files:
@@ -44,13 +44,13 @@ def upload_file():
     for file in files:      
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(app2.config['UPLOAD_FOLDER'], filename))
             url = (url_for('static',filename = 'uploads/' + filename))
             url_response = urllib.request.urlopen(url)
             img_array = np.array(bytearray(url_response.read()), dtype=np.uint8)
             result = dehaze(img_array)
             data = im.fromarray(result)
-            data.save(os.path.join(app.config['RESULT_FOLDER'], filename))
+            data.save(os.path.join(app2.config['RESULT_FOLDER'], filename))
             success = True
         else:
             errors[file.filename] = 'File type is not allowed'
@@ -162,4 +162,4 @@ def dehaze(img):
 
  
 if __name__ == '__main__':
-    app.run(debug=True)
+    app2.run(debug=True)
