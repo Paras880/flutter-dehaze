@@ -1,4 +1,4 @@
-from flask import Flask, jsonify,request
+from flask import Flask, jsonify,request, url_for, redirect, render_template
 import cv2
 import numpy as np
 import pandas as pd
@@ -98,13 +98,22 @@ def dehaze(img):
     # cv2.imwrite("dehazed",J*255);
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def hello_world():
+    return render_template("new.html")
+
+
 @app.route("/transform", methods=["POST"])
 def transform():
     img = request.files['img']
     image = cv2.imread(img)
     result = dehaze(image)
+    cv2.imwrite("dehazed.jpg",result);
+    
+    return render_template("new2.html")
 
-    return jsonify({"Dehazed": result,})
 
 
 
