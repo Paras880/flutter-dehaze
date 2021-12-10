@@ -12,7 +12,7 @@ from PIL import Image as im
  
 app = Flask(__name__)
  
-app.secret_key = "caircocoders-ednalan"
+# app.secret_key = "caircocoders-ednalan"
  
 UPLOAD_FOLDER = 'static/uploads'
 RESULT_FOLDER = 'static/results'
@@ -28,46 +28,50 @@ def allowed_file(filename):
 def main():
     return 'Homepage'
  
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['GET'])
 def upload_file():
+    query = dict(request.form)["url"]
+    print(query)
+    return jsonify({"response":"hello"})
     # check if the post request has the file part
-    if 'files[]' not in request.files:
-        resp = jsonify({'message' : 'No file part in the request'})
-        resp.status_code = 400
-        return resp
+    # if 'files' not in request.files:
+    #     resp = jsonify({'message' : 'No file part in the request'})
+    #     resp.status_code = 400
+    #     return resp
  
-    files = request.files.getlist('files[]')
+    # files = request.files.getlist('files')
      
-    errors = {}
-    success = False
+    # errors = {}
+    # success = False
      
-    for file in files:      
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            url = (url_for('static',filename = 'uploads/' + filename))
-            url_response = urllib.request.urlopen(url)
-            img_array = np.array(bytearray(url_response.read()), dtype=np.uint8)
-            result = dehaze(img_array)
-            data = im.fromarray(result)
-            data.save(os.path.join(app.config['RESULT_FOLDER'], filename))
-            success = True
-        else:
-            errors[file.filename] = 'File type is not allowed'
+    # for file in files:      
+    #     if file and allowed_file(file.filename):
+    #         filename = secure_filename(file.filename)
+    #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    #         # url = (url_for('static',filename = 'uploads/' + filename))
+    #         # url_response = urllib.request.urlopen(url)
+    #         # img_array = np.array(bytearray(url_response.read()), dtype=np.uint8)
+    #         # result = dehaze(img_array)
+    #         # data = im.fromarray(result)
+    #         # data.save(os.path.join(app.config['RESULT_FOLDER'], filename))
+    #         success = True
+    #     else:
+    #         errors[file.filename] = 'File type is not allowed'
+    
  
-    if success and errors:
-        errors['message'] = 'File(s) successfully uploaded'
-        resp = jsonify(errors)
-        resp.status_code = 500
-        return resp
-    if success:
-        resp = jsonify({'message' : 'Files successfully uploaded'})
-        resp.status_code = 201
-        return resp
-    else:
-        resp = jsonify(errors)
-        resp.status_code = 500
-        return resp
+    # if success and errors:
+    #     errors['message'] = 'File(s) successfully uploaded'
+    #     resp = jsonify(errors)
+    #     resp.status_code = 500
+    #     return resp
+    # if success:
+    #     resp = jsonify({'message' : 'Files successfully uploaded'})
+    #     resp.status_code = 201
+    #     return resp
+    # else:
+    #     resp = jsonify(errors)
+    #     resp.status_code = 500
+    #     return resp
 
 def DarkChannel(im,sz):
     b,g,r = cv2.split(im)
@@ -162,4 +166,4 @@ def dehaze(img):
 
  
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=int(os.environ.get('PORT',8080)),debug=True)
